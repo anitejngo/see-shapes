@@ -81,8 +81,7 @@ const parseInput = (inputValue) => {
         }
     } catch (error) {
         // Handle parsing errors here
-
-        console.error('Error parsing input:', error);
+        // console.error('Error parsing input:', error);
         return null;
     }
 };
@@ -126,7 +125,9 @@ function findPropertyValues(jsonString, propertyName) {
 export function RenderShapes() {
     const [roofArea, setRoofArea] = useState([]);
     const [objectsOnRoof, setObjectsOnRoof] = useState([]);
-    const [allData, setAllData] = useState([]);
+    const [positions, setPositions] = useState([]);
+    const [shapesData, setShapesData] = useState([]);
+    const [pointsData, setPointsData] = useState([]);
 
     const draw = () => {
         const canvas = document.getElementById('canvas');
@@ -139,18 +140,18 @@ export function RenderShapes() {
         ctx.fillStyle = 'lightgray'; // You can use any valid CSS color value
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        const { minX, minY } = findMinCoordinates(allData);
+        const { minX, minY } = findMinCoordinates(shapesData);
 
         const zoomLevel = calculateZoomLevel(
-            allData,
+            shapesData,
             canvas.width,
             canvas.height,
             padding
         );
-        allData.forEach((data) => {
+
+        shapesData.forEach((data) => {
             const color = getRandomBasicColor();
             ctx.beginPath();
-            console.log(data, 'DATA');
             data.forEach((point) => {
                 ctx.strokeStyle = color;
                 ctx.lineWidth = 2;
@@ -159,6 +160,28 @@ export function RenderShapes() {
                     canvas.height - ((point.y - minY) * zoomLevel + padding); // Adjusted y-coordinate calculation
                 ctx.lineTo(x, y);
             });
+            ctx.closePath();
+            ctx.stroke();
+        });
+
+        pointsData.forEach((point) => {
+            const color = getRandomBasicColor();
+            ctx.beginPath();
+            // Assuming point is a single object representing a point
+            const x = (point.x - minX) * zoomLevel + padding;
+            const y = canvas.height - ((point.y - minY) * zoomLevel + padding);
+
+            // Draw a little circle at each point
+            ctx.arc(x, y, 5, 0, 2 * Math.PI);
+
+            // You can also set the stroke color for each circle
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+
+            // Uncomment the following line if you want to fill the circles
+            ctx.fillStyle = color;
+            ctx.fill();
+
             ctx.closePath();
             ctx.stroke();
         });
@@ -173,12 +196,16 @@ export function RenderShapes() {
                 ? []
                 : findPropertyValues(objectsOnRoof, 'shape');
 
-        setAllData([...roofAsShape, ...objectsAsShapes]);
-    }, [roofArea, objectsOnRoof]);
+        const points =
+            positions === '' ? [] : findPropertyValues(positions, 'position');
+
+        setShapesData([...roofAsShape, ...objectsAsShapes]);
+        setPointsData(points);
+    }, [roofArea, objectsOnRoof, positions]);
 
     useEffect(() => {
         draw();
-    }, [allData]);
+    }, [shapesData]);
 
     return (
         <div
@@ -188,7 +215,14 @@ export function RenderShapes() {
                 flexDirection: 'column',
             }}
         >
-            <div style={{ width: 800, marginBottom: 20 }}>
+            <div
+                style={{
+                    width: '100%',
+                    marginBottom: 20,
+                    display: 'flex',
+                    flexDirection: 'row',
+                }}
+            >
                 <textarea
                     type="text"
                     placeholder="Add roof area"
@@ -202,6 +236,14 @@ export function RenderShapes() {
                     placeholder="Add any shapes"
                     value={objectsOnRoof}
                     onChange={(e) => setObjectsOnRoof(e.target.value)}
+                    style={{ width: '100%' }}
+                    rows={14}
+                />
+                <textarea
+                    type="text"
+                    placeholder="Add any positions"
+                    value={positions}
+                    onChange={(e) => setPositions(e.target.value)}
                     style={{ width: '100%' }}
                     rows={14}
                 />
