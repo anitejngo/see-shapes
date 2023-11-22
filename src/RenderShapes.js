@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-function findMinCoordinates(shapes) {
+function findMinCoordinates(shapesData) {
     let minX = Infinity;
     let minY = Infinity;
-    shapes.forEach((shape) => {
-        shape.forEach((point) => {
+    shapesData.forEach((shapesData) => {
+        shapesData.shape.forEach((point) => {
             minX = Math.min(minX, point.x);
             minY = Math.min(minY, point.y);
         });
@@ -12,14 +12,14 @@ function findMinCoordinates(shapes) {
 
     return { minX, minY };
 }
-function calculateZoomLevel(shapes, canvasWidth, canvasHeight, padding) {
+function calculateZoomLevel(shapesData, canvasWidth, canvasHeight, padding) {
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
     let maxY = -Infinity;
 
-    shapes.forEach((shape) => {
-        shape.forEach((point) => {
+    shapesData.forEach((shapesData) => {
+        shapesData.shape.forEach((point) => {
             minX = Math.min(minX, point.x);
             minY = Math.min(minY, point.y);
             maxX = Math.max(maxX, point.x);
@@ -88,11 +88,8 @@ const parseInput = (inputValue) => {
 
 function findPropertyValues(jsonString, propertyName) {
     const jsonData = parseInput(jsonString);
-    const propertyValues = [];
+    const results = [];
 
-    if (jsonData === null) {
-        return [];
-    }
     function recursiveSearch(obj) {
         if (typeof obj === 'object' && obj !== null) {
             if (Array.isArray(obj)) {
@@ -100,12 +97,14 @@ function findPropertyValues(jsonString, propertyName) {
                     recursiveSearch(item);
                 });
             } else {
+                if (propertyName in obj && 'id' in obj) {
+                    results.push({
+                        id: obj.id,
+                        [propertyName]: obj[propertyName],
+                    });
+                }
                 Object.keys(obj).forEach((key) => {
-                    if (key === propertyName) {
-                        propertyValues.push(obj[key]);
-                    } else {
-                        recursiveSearch(obj[key]);
-                    }
+                    recursiveSearch(obj[key]);
                 });
             }
         }
@@ -119,7 +118,7 @@ function findPropertyValues(jsonString, propertyName) {
         recursiveSearch(jsonData);
     }
 
-    return propertyValues;
+    return results;
 }
 
 export function RenderShapes() {
@@ -129,13 +128,47 @@ export function RenderShapes() {
     const [shapesData, setShapesData] = useState([]);
     const [pointsData, setPointsData] = useState([]);
 
+    const drawPoint = (
+        ctx,
+        point,
+        color,
+        minX,
+        minY,
+        zoomLevel,
+        padding,
+        canvas
+    ) => {
+        const x = (point.position.x - minX) * zoomLevel + padding;
+        const y =
+            canvas.height - ((point.position.y - minY) * zoomLevel + padding);
+
+        // Draw a little circle at each point
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, 2 * Math.PI);
+
+        // Set the stroke color for each circle
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 2;
+
+        // Uncomment the following line if you want to fill the circles
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.closePath();
+        ctx.stroke();
+
+        // Display the 'id' above the point
+        ctx.fillStyle = 'black';
+        ctx.font = '10px Arial';
+        ctx.fillText(point.id, x - ctx.measureText(point.id).width / 2, y - 10);
+    };
+
     const draw = () => {
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         canvas.width = 800;
         canvas.height = 800;
 
-        const padding = 50; // Adjust the padding value as needed
+        const padding = 100; // Adjust the padding value as needed
 
         ctx.fillStyle = 'lightgray'; // You can use any valid CSS color value
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -149,10 +182,10 @@ export function RenderShapes() {
             padding
         );
 
-        shapesData.forEach((data) => {
+        shapesData.forEach((shapesData) => {
             const color = getRandomBasicColor();
             ctx.beginPath();
-            data.forEach((point) => {
+            shapesData.shape.forEach((point) => {
                 ctx.strokeStyle = color;
                 ctx.lineWidth = 2;
                 const x = (point.x - minX) * zoomLevel + padding;
@@ -166,24 +199,16 @@ export function RenderShapes() {
 
         pointsData.forEach((point) => {
             const color = getRandomBasicColor();
-            ctx.beginPath();
-            // Assuming point is a single object representing a point
-            const x = (point.x - minX) * zoomLevel + padding;
-            const y = canvas.height - ((point.y - minY) * zoomLevel + padding);
-
-            // Draw a little circle at each point
-            ctx.arc(x, y, 5, 0, 2 * Math.PI);
-
-            // You can also set the stroke color for each circle
-            ctx.strokeStyle = color;
-            ctx.lineWidth = 2;
-
-            // Uncomment the following line if you want to fill the circles
-            ctx.fillStyle = color;
-            ctx.fill();
-
-            ctx.closePath();
-            ctx.stroke();
+            drawPoint(
+                ctx,
+                point,
+                color,
+                minX,
+                minY,
+                zoomLevel,
+                padding,
+                canvas
+            );
         });
     };
 
