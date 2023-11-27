@@ -54,7 +54,6 @@ export function findPropertyValues(
 ): any[] {
     const jsonData = parseInput(jsonString);
     const results: any[] = [];
-
     function recursiveSearch(obj: any) {
         if (typeof obj === 'object' && obj !== null) {
             if (Array.isArray(obj)) {
@@ -62,9 +61,9 @@ export function findPropertyValues(
                     recursiveSearch(item);
                 });
             } else {
-                if (propertyName in obj && 'id' in obj) {
+                if (propertyName in obj) {
                     results.push({
-                        id: obj.id,
+                        id: obj?.id ? obj.id : 'noIdFound',
                         [propertyName]: obj[propertyName],
                     });
                 }
