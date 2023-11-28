@@ -3,7 +3,8 @@ import { drawPoint, drawShape } from './helpers/drawing';
 import {
     calculateZoomLevel,
     findMinCoordinates,
-    findPropertyValues,
+    findPoints,
+    finsShapes,
     getRandomBasicColor,
 } from './helpers/calculations';
 
@@ -18,6 +19,8 @@ export function RenderShapes() {
     const [positions, setPositions] = useState([]);
     const [shapesData, setShapesData] = useState([]);
     const [pointsData, setPointsData] = useState([]);
+    const [showShapeId, setShowShapeId] = useState(true);
+    const [showPointId, setShowPointId] = useState(true);
 
     const draw = () => {
         const canvas = document.getElementById('canvas');
@@ -49,12 +52,14 @@ export function RenderShapes() {
                 minY,
                 zoomLevel,
                 PADDING,
-                canvas
+                canvas,
+                showShapeId
             );
         });
 
-        pointsData.forEach((point) => {
+        pointsData.forEach((point, index) => {
             const color = getRandomBasicColor();
+            const labelAbove = index % 2 === 0; // labelAbove is true for even indices, false for odd indices
             drawPoint(
                 ctx,
                 point,
@@ -63,22 +68,20 @@ export function RenderShapes() {
                 minY,
                 zoomLevel,
                 PADDING,
-                canvas
+                canvas,
+                showPointId,
+                labelAbove
             );
         });
     };
 
     useEffect(() => {
-        const roofAsShape =
-            roofArea === '' ? [] : findPropertyValues(roofArea, 'shape');
+        const roofAsShape = roofArea === '' ? [] : finsShapes(roofArea);
 
         const objectsAsShapes =
-            objectsOnRoof === ''
-                ? []
-                : findPropertyValues(objectsOnRoof, 'shape');
+            objectsOnRoof === '' ? [] : finsShapes(objectsOnRoof, 'shape');
 
-        const points =
-            positions === '' ? [] : findPropertyValues(positions, 'position');
+        const points = positions === '' ? [] : findPoints(positions);
 
         setShapesData([...roofAsShape, ...objectsAsShapes]);
         setPointsData(points);
@@ -86,7 +89,7 @@ export function RenderShapes() {
 
     useEffect(() => {
         draw();
-    }, [shapesData]);
+    }, [shapesData, showShapeId, showPointId]);
 
     return (
         <div
@@ -128,6 +131,24 @@ export function RenderShapes() {
                     style={{ width: '100%' }}
                     rows={14}
                 />
+            </div>
+            <div>
+                <label>
+                    Show Shape IDs
+                    <input
+                        type="checkbox"
+                        checked={showShapeId}
+                        onChange={() => setShowShapeId(!showShapeId)}
+                    />
+                </label>
+                <label>
+                    Show Point IDs
+                    <input
+                        type="checkbox"
+                        checked={showPointId}
+                        onChange={() => setShowPointId(!showPointId)}
+                    />
+                </label>
             </div>
             <canvas id="canvas" style={{ border: '1px solid black' }}></canvas>
         </div>

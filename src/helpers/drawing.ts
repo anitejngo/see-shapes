@@ -8,7 +8,9 @@ export const drawPoint = (
     minY: number,
     zoomLevel: number,
     padding: number,
-    canvas: HTMLCanvasElement
+    canvas: HTMLCanvasElement,
+    showPointId: boolean,
+    labelAbove: boolean
 ): void => {
     const x = (point.position.x - minX) * zoomLevel + padding;
     const y = canvas.height - ((point.position.y - minY) * zoomLevel + padding);
@@ -28,9 +30,24 @@ export const drawPoint = (
     ctx.stroke();
 
     // Display the 'id' above the point
-    ctx.fillStyle = 'black';
-    ctx.font = '10px Arial';
-    ctx.fillText(point.id, x - ctx.measureText(point.id).width / 2, y - 10);
+    if (showPointId) {
+        ctx.fillStyle = color;
+        ctx.font = '10px Arial';
+
+        if (labelAbove) {
+            ctx.fillText(
+                point.id,
+                x - ctx.measureText(point.id).width / 2,
+                y - 10
+            );
+        } else {
+            ctx.fillText(
+                point.id,
+                x - ctx.measureText(point.id).width / 2,
+                y + 15
+            );
+        }
+    }
 };
 
 export const drawShape = (
@@ -41,7 +58,8 @@ export const drawShape = (
     minY: number,
     zoomLevel: number,
     padding: number,
-    canvas: HTMLCanvasElement
+    canvas: HTMLCanvasElement,
+    showShapeId: boolean
 ): void => {
     const middle = {
         x: (shapesData.shape[0].x + shapesData.shape[1].x) / 2,
@@ -59,13 +77,15 @@ export const drawShape = (
     ctx.stroke();
 
     // Display the 'id' in shape
-    ctx.fillStyle = 'black';
-    ctx.font = '10px Arial';
-    ctx.fillText(
-        shapesData.id,
-        (middle.x - minX) * zoomLevel +
-            padding -
-            ctx.measureText(shapesData.id).width / 2,
-        canvas.height - ((middle.y - minY) * zoomLevel + padding) - 10
-    );
+    if (showShapeId) {
+        ctx.fillStyle = 'black';
+        ctx.font = '10px Arial';
+        ctx.fillText(
+            shapesData.id,
+            (middle.x - minX) * zoomLevel +
+                padding -
+                ctx.measureText(shapesData.id).width / 2,
+            canvas.height - ((middle.y - minY) * zoomLevel + padding) - 10
+        );
+    }
 };

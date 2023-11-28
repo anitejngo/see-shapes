@@ -2,26 +2,21 @@ import { Point } from '../types/types';
 
 export function getRandomBasicColor() {
     const basicColors = [
-        '#4A90E2', // Dodger Blue
-        '#7ED321', // Nyanza Green
-        '#FF2D55', // Razzmatazz Red
-        '#FFD600', // Cyber Yellow
-        '#8E44AD', // Wisteria Purple
-        '#FF6F40', // Atomic Tangerine
-        '#D35400', // Pumpkin Orange
-        '#FF6EB4', // Piggy Pink
-        '#17A589', // Green Blue
-        '#D22B2B', // Fire Engine Red
-        '#8BC34A', // Android Green
-        '#00796B', // Tropical Rain Forest
-        '#3D5AFE', // Royal Blue
-        '#C2185B', // Fuchsia Pink
-        '#34495E', // Wet Asphalt
-        '#26A65B', // Nephritis Green
-        '#95A5A6', // Almond Silver
-        '#9B59B6', // Amethyst Purple
-        '#ECF0F1', // Clouds White
-        '#2C3E50', // Midnight Black
+        '#3498db', // Belize Hole Blue
+        '#2ecc71', // Emerald Green
+        '#e74c3c', // Alizarin Red
+        '#f39c12', // Orange
+        '#9b59b6', // Amethyst Purple
+        '#e67e22', // Carrot Orange
+        '#d35400', // Pumpkin Orange
+        '#ff6eb4', // Piggy Pink
+        '#2ecc71', // Green
+        '#e74c3c', // Red
+        '#27ae60', // Nephritis Green
+        '#2980b9', // Peter River Blue
+        '#e74c3c', // Fuchsia Pink
+        '#27ae60', // Nephritis Green
+        '#9b59b6', // Amethyst Purple
     ];
 
     const randomIndex = Math.floor(Math.random() * basicColors.length);
@@ -48,10 +43,7 @@ const parseInput = (inputValue: any): any => {
     }
 };
 
-export function findPropertyValues(
-    jsonString: any,
-    propertyName: string
-): any[] {
+export function finsShapes(jsonString: any): any[] {
     const jsonData = parseInput(jsonString);
     const results: any[] = [];
     function recursiveSearch(obj: any) {
@@ -61,10 +53,10 @@ export function findPropertyValues(
                     recursiveSearch(item);
                 });
             } else {
-                if (propertyName in obj) {
+                if ('shape' in obj) {
                     results.push({
                         id: obj?.id ? obj.id : 'noIdFound',
-                        [propertyName]: obj[propertyName],
+                        shape: obj['shape'],
                     });
                 }
                 Object.keys(obj).forEach((key) => {
@@ -82,6 +74,34 @@ export function findPropertyValues(
         recursiveSearch(jsonData);
     }
 
+    return results;
+}
+
+export function findPoints(jsonString: any) {
+    const jsonData = parseInput(jsonString);
+    const results: any[] = [];
+    function recursiveSearch(obj: any) {
+        if (typeof obj === 'object' && obj !== null) {
+            if (Array.isArray(obj)) {
+                obj.forEach((item) => {
+                    recursiveSearch(item);
+                });
+            } else {
+                results.push({
+                    id: obj?.id ? obj.id : 'noIdFound',
+                    position: obj['position'],
+                });
+            }
+        }
+    }
+
+    if (Array.isArray(jsonData)) {
+        jsonData.forEach((item) => {
+            recursiveSearch(item);
+        });
+    } else {
+        recursiveSearch(jsonData);
+    }
     return results;
 }
 
