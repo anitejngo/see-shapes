@@ -58,7 +58,6 @@ export function RenderShapes() {
         });
 
         pointsData.forEach((point, index) => {
-            const labelAbove = index % 2 === 0; // labelAbove is true for even indices, false for odd indices
             drawPoint(
                 ctx,
                 point,
@@ -67,8 +66,7 @@ export function RenderShapes() {
                 zoomLevel,
                 PADDING,
                 canvas,
-                showPointId,
-                labelAbove
+                showPointId
             );
         });
     };

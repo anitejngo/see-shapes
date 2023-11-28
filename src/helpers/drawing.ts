@@ -8,8 +8,7 @@ export const drawPoint = (
     zoomLevel: number,
     padding: number,
     canvas: HTMLCanvasElement,
-    showPointId: boolean,
-    labelAbove: boolean
+    showPointId: boolean
 ): void => {
     const x = (point.position.x - minX) * zoomLevel + padding;
     const y = canvas.height - ((point.position.y - minY) * zoomLevel + padding);
@@ -27,24 +26,12 @@ export const drawPoint = (
     ctx.closePath();
     ctx.stroke();
 
-    // Display the 'id' above the point
     if (showPointId) {
+        // Display the 'id' above the point
         ctx.fillStyle = point.isInside ? 'red' : 'green';
         ctx.font = '10px Arial';
-
-        if (labelAbove) {
-            ctx.fillText(
-                point.id,
-                x - ctx.measureText(point.id).width / 2,
-                y - 10
-            );
-        } else {
-            ctx.fillText(
-                point.id,
-                x - ctx.measureText(point.id).width / 2,
-                y + 15
-            );
-        }
+        const idText = point.id.slice(0, 8) + '..';
+        ctx.fillText(idText, x - ctx.measureText(idText).width / 2, y - 10);
     }
 };
 
@@ -76,13 +63,14 @@ export const drawShape = (
 
     // Display the 'id' in shape
     if (showShapeId) {
+        const idText = shapesData.id.slice(0, 8) + '..';
         ctx.fillStyle = 'black';
         ctx.font = '10px Arial';
         ctx.fillText(
-            shapesData.id,
+            idText,
             (middle.x - minX) * zoomLevel +
                 padding -
-                ctx.measureText(shapesData.id).width / 2,
+                ctx.measureText(idText).width / 2,
             canvas.height - ((middle.y - minY) * zoomLevel + padding) - 10
         );
     }
