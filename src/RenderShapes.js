@@ -58,12 +58,10 @@ export function RenderShapes() {
         });
 
         pointsData.forEach((point, index) => {
-            const color = getRandomBasicColor();
             const labelAbove = index % 2 === 0; // labelAbove is true for even indices, false for odd indices
             drawPoint(
                 ctx,
                 point,
-                color,
                 minX,
                 minY,
                 zoomLevel,
@@ -132,7 +130,7 @@ export function RenderShapes() {
                     rows={14}
                 />
             </div>
-            <div>
+            <div style={{ paddingBottom: 10 }}>
                 <label>
                     Show Shape IDs
                     <input
@@ -150,7 +148,11 @@ export function RenderShapes() {
                     />
                 </label>
             </div>
-            <canvas id="canvas" style={{ border: '1px solid black' }}></canvas>
+            <canvas
+                id="canvas"
+                style={{ border: '1px solid black', marginBottom: 6 }}
+            ></canvas>
+            <div>Red dots are inside, Green are outside!</div>
         </div>
     );
 }

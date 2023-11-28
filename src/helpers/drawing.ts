@@ -3,7 +3,6 @@ import { Point, ShapeData } from '../types/types';
 export const drawPoint = (
     ctx: CanvasRenderingContext2D,
     point: Point,
-    color: string,
     minX: number,
     minY: number,
     zoomLevel: number,
@@ -20,18 +19,17 @@ export const drawPoint = (
     ctx.arc(x, y, 5, 0, 2 * Math.PI);
 
     // Set the stroke color for each circle
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
+    ctx.strokeStyle = point.isInside ? 'red' : 'green';
 
     // Uncomment the following line if you want to fill the circles
-    ctx.fillStyle = color;
+    ctx.fillStyle = point.isInside ? 'red' : 'green';
     ctx.fill();
     ctx.closePath();
     ctx.stroke();
 
     // Display the 'id' above the point
     if (showPointId) {
-        ctx.fillStyle = color;
+        ctx.fillStyle = point.isInside ? 'red' : 'green';
         ctx.font = '10px Arial';
 
         if (labelAbove) {

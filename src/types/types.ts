@@ -4,6 +4,7 @@ export type Point = {
         y: number;
     };
     id: string;
+    isInside: boolean;
 };
 
 type Coordinate = {

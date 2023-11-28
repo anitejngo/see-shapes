@@ -90,6 +90,7 @@ export function findPoints(jsonString: any) {
                 results.push({
                     id: obj?.id ? obj.id : 'noIdFound',
                     position: obj['position'],
+                    isInside: obj['isInside'],
                 });
             }
         }
