@@ -23,7 +23,7 @@ export function getRandomBasicColor() {
     return basicColors[randomIndex];
 }
 
-const parseInput = (inputValue: any): any => {
+export const parseInput = (inputValue: any): any => {
     try {
         // Using Function() to parse the input as JavaScript code
         const parsed = Function(`"use strict"; return (${inputValue})`)();
@@ -34,81 +34,15 @@ const parseInput = (inputValue: any): any => {
         } else {
             // Handle invalid input here
             console.error('Invalid input - not an object or array');
-            return null;
+            return [];
         }
     } catch (error) {
-        // Handle parsing errors here
-        // console.error('Error parsing input:', error);
-        return null;
+        return [];
     }
 };
 
-export function finsShapes(jsonString: any): any[] {
-    const jsonData = parseInput(jsonString);
-    const results: any[] = [];
-    function recursiveSearch(obj: any) {
-        if (typeof obj === 'object' && obj !== null) {
-            if (Array.isArray(obj)) {
-                obj.forEach((item) => {
-                    recursiveSearch(item);
-                });
-            } else {
-                if ('shape' in obj) {
-                    results.push({
-                        id: obj?.id ? obj.id : 'noIdFound',
-                        shape: obj['shape'],
-                    });
-                }
-                Object.keys(obj).forEach((key) => {
-                    recursiveSearch(obj[key]);
-                });
-            }
-        }
-    }
-
-    if (Array.isArray(jsonData)) {
-        jsonData.forEach((item) => {
-            recursiveSearch(item);
-        });
-    } else {
-        recursiveSearch(jsonData);
-    }
-
-    return results;
-}
-
-export function findPoints(jsonString: any) {
-    const jsonData = parseInput(jsonString);
-    const results: any[] = [];
-    function recursiveSearch(obj: any) {
-        if (typeof obj === 'object' && obj !== null) {
-            if (Array.isArray(obj)) {
-                obj.forEach((item) => {
-                    recursiveSearch(item);
-                });
-            } else {
-                results.push({
-                    id: obj?.id ? obj.id : 'noIdFound',
-                    position: obj['position'],
-                    isInside: obj['isInside'],
-                });
-            }
-        }
-    }
-
-    if (Array.isArray(jsonData)) {
-        jsonData.forEach((item) => {
-            recursiveSearch(item);
-        });
-    } else {
-        recursiveSearch(jsonData);
-    }
-    return results;
-}
-
 export function calculateZoomLevel(
-    shapesData: any,
-    pointsData: Point[],
+    points: Point[],
     canvasWidth: number,
     canvasHeight: number,
     padding: number
@@ -118,20 +52,11 @@ export function calculateZoomLevel(
     let maxX = -Infinity;
     let maxY = -Infinity;
 
-    shapesData?.forEach((shapesData: any) => {
-        shapesData.shape.forEach((point: any) => {
-            minX = Math.min(minX, point.x);
-            minY = Math.min(minY, point.y);
-            maxX = Math.max(maxX, point.x);
-            maxY = Math.max(maxY, point.y);
-        });
-    });
-
-    pointsData?.forEach((point: any) => {
-        minX = Math.min(minX, point.position.x);
-        minY = Math.min(minY, point.position.y);
-        maxX = Math.max(maxX, point.position.x);
-        maxY = Math.max(maxY, point.position.y);
+    points?.forEach((point: Point) => {
+        minX = Math.min(minX, point.x);
+        minY = Math.min(minY, point.y);
+        maxX = Math.max(maxX, point.x);
+        maxY = Math.max(maxY, point.y);
     });
 
     const canvasWidthWithPadding = canvasWidth - 2 * padding;
@@ -146,18 +71,12 @@ export function calculateZoomLevel(
     return Math.min(zoomX, zoomY);
 }
 
-export function findMinCoordinates(shapesData: any, pointsData: any) {
+export function findMinCoordinates(points: Point[]) {
     let minX = Infinity;
     let minY = Infinity;
-    shapesData?.forEach((shapesData: any) => {
-        shapesData.shape.forEach((point: any) => {
-            minX = Math.min(minX, point.x);
-            minY = Math.min(minY, point.y);
-        });
-    });
-    pointsData.forEach((point: any) => {
-        minX = Math.min(minX, point.position.x);
-        minY = Math.min(minY, point.position.y);
+    points?.forEach((point: Point) => {
+        minX = Math.min(minX, point.x);
+        minY = Math.min(minY, point.y);
     });
 
     return { minX, minY };
