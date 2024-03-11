@@ -2,21 +2,19 @@ import { Point } from '../types/types';
 
 export function getRandomBasicColor() {
     const basicColors = [
-        '#3498db', // Belize Hole Blue
-        '#2ecc71', // Emerald Green
-        '#e74c3c', // Alizarin Red
-        '#f39c12', // Orange
-        '#9b59b6', // Amethyst Purple
-        '#e67e22', // Carrot Orange
-        '#d35400', // Pumpkin Orange
-        '#ff6eb4', // Piggy Pink
-        '#2ecc71', // Green
-        '#e74c3c', // Red
-        '#27ae60', // Nephritis Green
-        '#2980b9', // Peter River Blue
-        '#e74c3c', // Fuchsia Pink
-        '#27ae60', // Nephritis Green
-        '#9b59b6', // Amethyst Purple
+        '#F44336', // Red
+        '#9C27B0', // Purple
+        '#FFA000', // Darker Orange
+        '#0288D1', // Dark Blue
+        '#4CAF50', // Green
+        '#6D4C41', // Dark Brown
+        '#311B92', // Darker Purple
+        '#BF360C', // Darker Red
+        '#455A64', // Dark Blue Grey
+        '#FF8F00', // Darker Orange
+        '#1976D2', // Blue
+        '#FF7043', // Lighter Red
+        '#7B1FA2', // Darker Purple
     ];
 
     const randomIndex = Math.floor(Math.random() * basicColors.length);
@@ -37,8 +35,25 @@ export const parseInput = (inputValue: any): any => {
             return [];
         }
     } catch (error) {
-        return [];
+        return undefined;
     }
+};
+
+export const isValidShape = (points: any): points is Point[] => {
+    // Check if points is an array
+    if (!Array.isArray(points)) {
+        return false;
+    }
+
+    // Check if each element is an object with x and y properties
+    return points.every((point: any) => {
+        return (
+            typeof point === 'object' &&
+            point !== null &&
+            typeof point.x === 'number' &&
+            typeof point.y === 'number'
+        );
+    });
 };
 
 export function calculateZoomLevel(

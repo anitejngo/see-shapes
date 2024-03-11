@@ -1,135 +1,295 @@
 import React, { useEffect, useState } from 'react';
+import { Formik, Form, FieldArray, Field } from 'formik';
 import { drawEverything } from './helpers/draw';
-import { parseInput } from './helpers/calculations';
-import { Shape } from './types/types';
+import {
+    getRandomBasicColor,
+    isValidShape,
+    parseInput,
+} from './helpers/calculations';
+import { FormValues, Shape } from './types/types';
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
+import { LuSquareDashedBottom, LuSquare } from 'react-icons/lu';
+
+import { IconCheckBox } from './components/IconCheckBox';
+
 export function RenderShapes() {
-    const [roofPoints, setRoofPoints] = useState<string>();
-    const [anyPoints, setAnyPoints] = useState<string>();
-    const [allIndexes, setAllIndexes] = useState<string[]>([]);
-    const [indexesToShow, setIndexesToShow] = useState<string[]>([]);
-    const [selectAll, setSelectAll] = useState<boolean>(true);
+    const [formValues, setFormValues] = useState<any>();
+    const [shapes, setShapes] = useState<Shape[]>([]);
 
-    const getIndexes = (anyPointsData: Shape[][] | undefined) => {
-        if (anyPointsData) {
-            return Array.from({ length: anyPointsData.length }, (_, index) =>
-                index.toString()
-            );
-        } else {
-            return [];
-        }
-    };
+    useEffect(() => {
+        const parsedShapes: Shape[] = formValues?.shapes
+            .map((shape: any) => {
+                const parsedPoints = parseInput(shape.points);
+                if (isValidShape(parsedPoints)) {
+                    return {
+                        points: parsedPoints,
+                        isHidden: shape.isHidden,
+                        shouldClose: shape.shouldClose,
+                        color: shape.color,
+                    };
+                } else {
+                    return undefined;
+                }
+            })
+            .filter((shape: any): shape is Shape => shape !== undefined); // Type assertion here
 
-    const handleToggleIndex = (index: string) => {
-        if (indexesToShow.includes(index)) {
-            // If index is already in the array, remove it
-            setIndexesToShow(indexesToShow.filter((idx) => idx !== index));
-        } else {
-            // If index is not in the array, add it
-            setIndexesToShow([...indexesToShow, index]);
+        if (parsedShapes) {
+            setShapes(parsedShapes);
         }
-    };
-
-    const handleSelectAll = () => {
-        if (selectAll) {
-            setIndexesToShow([]);
-        } else {
-            setIndexesToShow(allIndexes); // Add your logic to set all indexes
-        }
-        setSelectAll(!selectAll);
-    };
+    }, [formValues]);
 
     useEffect(() => {
         const canvas = document.getElementById('canvas');
-        if (canvas) {
-            const anyPointsData = parseInput(anyPoints);
-            console.log(anyPointsData, 'DATA?');
-            const roofPointsData = parseInput(roofPoints);
-            const allIndexes = getIndexes(anyPointsData);
-            setAllIndexes(allIndexes);
-            setIndexesToShow(allIndexes);
-            drawEverything(
-                canvas,
-                roofPointsData,
-                anyPointsData,
-                indexesToShow
-            );
+        const canvasDiv = document.getElementById('canvasDiv'); // Assuming you have a div with class 'flex' wrapping the canvas
+        if (canvas && canvasDiv) {
+            drawEverything(canvasDiv, canvas, shapes);
         }
-    }, [anyPoints, roofPoints]);
-
-    useEffect(() => {
-        const canvas = document.getElementById('canvas');
-        if (canvas) {
-            const anyPointsData = parseInput(anyPoints);
-            const roofPointsData = parseInput(roofPoints);
-            drawEverything(
-                canvas,
-                roofPointsData,
-                anyPointsData,
-                indexesToShow
-            );
-        }
-    }, [indexesToShow]);
+    }, [shapes]);
 
     return (
-        <div
-            style={{
-                display: 'flex',
-                alignItems: 'center',
-                flexDirection: 'column',
-            }}
-        >
-            <div
-                style={{
-                    width: '100%',
-                    marginBottom: 20,
-                    display: 'flex',
-                    flexDirection: 'row',
+        <div className="flex flex-row h-full">
+            <Formik<FormValues>
+                initialValues={{
+                    shapes: [
+                        {
+                            color: getRandomBasicColor(),
+                            points: [],
+                            isHidden: false,
+                            shouldClose: true,
+                        },
+                    ],
+                }}
+                onSubmit={(values) => {
+                    // Handle form submission here
                 }}
             >
-                <textarea
-                    placeholder="Add array of points"
-                    value={anyPoints}
-                    onChange={(e) => setAnyPoints(e.target.value)}
-                    style={{ width: '100%' }}
-                    rows={14}
-                />
-                <textarea
-                    placeholder="Add array of roof"
-                    value={roofPoints}
-                    onChange={(e) => setRoofPoints(e.target.value)}
-                    style={{ width: '100%' }}
-                    rows={14}
-                />
-            </div>
+                {({ values, handleChange, setValues }) => {
+                    setFormValues(values);
 
-            <canvas
-                id="canvas"
-                style={{ border: '1px solid black', marginBottom: 6 }}
-            />
-            <div style={{ display: 'flex', flexDirection: 'row' }}>
-                <div>
-                    <input
-                        type="checkbox"
-                        id="select-all"
-                        checked={selectAll}
-                        onChange={handleSelectAll}
-                    />
-                    <label htmlFor="select-all">Show all</label>
-                </div>
-                {allIndexes.map((indexToShow, index) => (
-                    <div key={index}>
-                        <input
-                            type="checkbox"
-                            id={`index-${indexToShow}`}
-                            value={indexToShow}
-                            checked={indexesToShow.includes(indexToShow)}
-                            onChange={() => handleToggleIndex(indexToShow)}
-                        />
-                        <label htmlFor={`index-${indexToShow}`}>
-                            {indexToShow}
-                        </label>
-                    </div>
-                ))}
+                    return (
+                        <Form className="flex w-1/3 flex-row">
+                            <FieldArray name="shapes">
+                                {({ push, remove }) => (
+                                    <div
+                                        className="flex flex-1 flex-col overflow-y-scroll space-y-2 p-2"
+                                        style={{ height: 'calc(100vh)' }}
+                                    >
+                                        <div
+                                            className={
+                                                'flex items-center space-x-2'
+                                            }
+                                        >
+                                            <button
+                                                className="border border-gray-500 text-gray-500 px-4 py-2 rounded hover:bg-gray-100 hover:text-gray-600 w-fit h-fit"
+                                                type="button"
+                                                onClick={() =>
+                                                    push({
+                                                        color: getRandomBasicColor(),
+                                                        points: '',
+                                                        isHidden: false,
+                                                    })
+                                                }
+                                            >
+                                                Add more
+                                            </button>
+                                            <div
+                                                className={'text-gray-500'}
+                                            >{`example: [{ x: 1,y: 1,},{ x: 1,y: 2,}]`}</div>
+                                        </div>
+                                        {values.shapes.map(
+                                            (
+                                                shape: Shape,
+                                                index: number // Use Shape type here
+                                            ) => {
+                                                const points =
+                                                    values.shapes[index].points;
+                                                const parsedValue =
+                                                    parseInput(points);
+
+                                                const failedToParse =
+                                                    // @ts-ignore
+                                                    points !== '' &&
+                                                    parsedValue === undefined;
+
+                                                return (
+                                                    <div
+                                                        key={index}
+                                                        className="flex border border-gray-500 p-2 space-x-2 items-center "
+                                                    >
+                                                        <Field
+                                                            name={`shapes.${index}.points`}
+                                                            placeholder="Add array of points"
+                                                            onChange={
+                                                                handleChange
+                                                            }
+                                                            className="w-full border border-gray-500 bg-gray-100"
+                                                            component="textarea"
+                                                            rows={8}
+                                                        />
+
+                                                        <div
+                                                            className={
+                                                                'space-y-2 items-center flex flex-col'
+                                                            }
+                                                        >
+                                                            <button
+                                                                className={
+                                                                    'border px-4 py-2 rounded hover:bg-gray-100 hover:text-gray-600 h-fit w-fit'
+                                                                }
+                                                                type="button"
+                                                                disabled={
+                                                                    values
+                                                                        .shapes
+                                                                        .length ===
+                                                                    1
+                                                                }
+                                                                onClick={() => {
+                                                                    remove(
+                                                                        index
+                                                                    );
+                                                                }}
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                            <button
+                                                                className="flex"
+                                                                onClick={() => {
+                                                                    const newColor =
+                                                                        getRandomBasicColor();
+                                                                    const newShapes =
+                                                                        [
+                                                                            ...values.shapes,
+                                                                        ];
+                                                                    newShapes[
+                                                                        index
+                                                                    ].color =
+                                                                        newColor;
+                                                                    setValues({
+                                                                        shapes: newShapes,
+                                                                    });
+                                                                }}
+                                                            >
+                                                                Color:
+                                                                <div
+                                                                    className="w-6 h-6 ml-2 rounded"
+                                                                    style={{
+                                                                        backgroundColor:
+                                                                            shape.color,
+                                                                    }}
+                                                                />
+                                                            </button>
+
+                                                            <IconCheckBox
+                                                                checked={
+                                                                    shape.isHidden
+                                                                }
+                                                                onChange={(
+                                                                    checked
+                                                                ) => {
+                                                                    const newShapes =
+                                                                        [
+                                                                            ...values.shapes,
+                                                                        ];
+                                                                    newShapes[
+                                                                        index
+                                                                    ].isHidden =
+                                                                        checked;
+                                                                    setValues({
+                                                                        shapes: newShapes,
+                                                                    });
+                                                                }}
+                                                                checkedIcon={
+                                                                    <AiFillEyeInvisible
+                                                                        size={
+                                                                            26
+                                                                        }
+                                                                        className={
+                                                                            'text-red-700'
+                                                                        }
+                                                                    />
+                                                                }
+                                                                uncheckedIcon={
+                                                                    <AiFillEye
+                                                                        size={
+                                                                            26
+                                                                        }
+                                                                        className={
+                                                                            'text-green-700'
+                                                                        }
+                                                                    />
+                                                                }
+                                                            />
+
+                                                            <IconCheckBox
+                                                                checked={
+                                                                    shape.shouldClose
+                                                                }
+                                                                onChange={(
+                                                                    checked
+                                                                ) => {
+                                                                    const newShapes =
+                                                                        [
+                                                                            ...values.shapes,
+                                                                        ];
+                                                                    newShapes[
+                                                                        index
+                                                                    ].shouldClose =
+                                                                        checked;
+                                                                    setValues({
+                                                                        shapes: newShapes,
+                                                                    });
+                                                                }}
+                                                                checkedIcon={
+                                                                    <LuSquare
+                                                                        size={
+                                                                            26
+                                                                        }
+                                                                        className={
+                                                                            'text-green-700'
+                                                                        }
+                                                                    />
+                                                                }
+                                                                uncheckedIcon={
+                                                                    <LuSquareDashedBottom
+                                                                        size={
+                                                                            26
+                                                                        }
+                                                                        className={
+                                                                            'text-gray-400'
+                                                                        }
+                                                                    />
+                                                                }
+                                                            />
+
+                                                            {failedToParse && (
+                                                                <div
+                                                                    className={
+                                                                        'text-red-700 w-1/2'
+                                                                    }
+                                                                >
+                                                                    Parsing
+                                                                    error ˙◠˙
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }
+                                        )}
+                                    </div>
+                                )}
+                            </FieldArray>
+                        </Form>
+                    );
+                }}
+            </Formik>
+
+            <div
+                id="canvasDiv"
+                className={'flex w-2/3'}
+                style={{ height: 'calc(100vh)' }}
+            >
+                <canvas id="canvas" className="border border-black mb-2" />
             </div>
         </div>
     );

@@ -1,81 +1,41 @@
-import {
-    calculateZoomLevel,
-    findMinCoordinates,
-    getRandomBasicColor,
-} from './calculations';
-import { drawPoint, drawShape } from './drawing';
+import { calculateZoomLevel, findMinCoordinates } from './calculations';
+import { drawShape } from './drawing';
 import { Point, Shape } from '../types/types';
 const PADDING = 100;
 
 export const drawEverything = (
+    canvasDiv: HTMLElement,
     canvas: any,
-    roofPointsData: Shape,
-    anyPointsData: Shape[][],
-    indexesToShow: string[]
+    shapes: Shape[]
 ) => {
-    const ctx = canvas.getContext('2d');
-    if (ctx) {
-        canvas.width = 800;
-        canvas.height = 800;
-        ctx.fillStyle = 'lightgray';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    try {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+            // Set canvas size to match parent div
+            canvas.width = canvasDiv.clientWidth;
+            canvas.height = canvasDiv.clientHeight;
 
-        const allPoints: Point[] = [
-            ...roofPointsData,
-            ...anyPointsData.flatMap((shapeArray) =>
-                shapeArray.flatMap((shape) => shape)
-            ),
-        ];
+            ctx.fillStyle = '#e6f0ff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        const { minX, minY } = findMinCoordinates(allPoints);
+            const allPoints: Point[] = [
+                ...shapes.flatMap((shapeArray) => shapeArray.points),
+            ];
 
-        const zoomLevel = calculateZoomLevel(
-            allPoints,
-            canvas.width,
-            canvas.height,
-            PADDING
-        );
+            const { minX, minY } = findMinCoordinates(allPoints);
 
-        drawShape(
-            ctx,
-            roofPointsData,
-            minX,
-            minY,
-            zoomLevel,
-            PADDING,
-            canvas,
-            'red'
-        );
+            const zoomLevel = calculateZoomLevel(
+                allPoints,
+                canvas.width,
+                canvas.height,
+                PADDING
+            );
 
-        anyPointsData.forEach((group, index) =>
-            group.map((shape) => {
-                const color = getRandomBasicColor();
-
-                if (indexesToShow.includes(index.toString())) {
-                    drawShape(
-                        ctx,
-                        shape,
-                        minX,
-                        minY,
-                        zoomLevel,
-                        PADDING,
-                        canvas,
-                        color
-                    );
-                    shape.forEach((point: Point) => {
-                        drawPoint(
-                            ctx,
-                            point,
-                            minX,
-                            minY,
-                            zoomLevel,
-                            PADDING,
-                            canvas,
-                            color
-                        );
-                    });
-                }
-            })
-        );
+            shapes.forEach((shape, index) => {
+                drawShape(ctx, minX, minY, zoomLevel, PADDING, canvas, shape);
+            });
+        }
+    } catch {
+        console.log('error while drawing');
     }
 };
