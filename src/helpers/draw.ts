@@ -24,8 +24,23 @@ export const drawEverything = (
 
             const { minX, minY } = findMinCoordinates(allPoints);
 
+            const zoomPoints =
+                allPoints.length === 1
+                    ? [
+                          {
+                              x: allPoints[0].x + 2,
+                              y: allPoints[0].y,
+                          },
+                          ...allPoints,
+                          {
+                              x: allPoints[0].x,
+                              y: allPoints[0].y + 2,
+                          },
+                      ]
+                    : allPoints;
+
             const zoomLevel = calculateZoomLevel(
-                allPoints,
+                zoomPoints,
                 canvas.width,
                 canvas.height,
                 PADDING

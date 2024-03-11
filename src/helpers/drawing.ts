@@ -14,8 +14,21 @@ export const drawShape = (
     }
 
     const shapePoints = shape.points;
+    if (shapePoints.length < 1) {
+        return;
+    }
     if (shapePoints.length < 2) {
         // Not enough points to draw a shape
+        drawPoint(
+            ctx,
+            shape.points[0],
+            minX,
+            minY,
+            zoomLevel,
+            padding,
+            canvas,
+            shape.color
+        );
         return;
     }
 
@@ -41,5 +54,30 @@ export const drawShape = (
     }
     // Set styles and draw
     ctx.strokeStyle = shape.color;
+    ctx.stroke();
+};
+
+const drawPoint = (
+    ctx: CanvasRenderingContext2D,
+    point: Point,
+    minX: number,
+    minY: number,
+    zoomLevel: number,
+    padding: number,
+    canvas: HTMLCanvasElement,
+    color: string
+): void => {
+    const x = (point.x - minX) * zoomLevel + padding;
+    const y = canvas.height - ((point.y - minY) * zoomLevel + padding);
+
+    // Draw a little circle at each point
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, 2 * Math.PI);
+
+    ctx.strokeStyle = color;
+
+    ctx.fillStyle = color;
+    ctx.fill();
+    ctx.closePath();
     ctx.stroke();
 };
