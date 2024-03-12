@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Formik, Form, FieldArray, Field } from 'formik';
 import { drawEverything } from './helpers/draw';
 import {
@@ -63,8 +63,26 @@ export function RenderShapes() {
                     // Handle form submission here
                 }}
             >
-                {({ values, handleChange, setValues }) => {
+                {({ values, handleChange, setFieldValue, setValues }) => {
                     setFormValues(values);
+
+                    const handleTextChange = (
+                        event: ChangeEvent<HTMLTextAreaElement>
+                    ) => {
+                        const { name, value } = event.target;
+                        let beautifiedValue;
+                        try {
+                            const parsedValue = parseInput(value);
+                            beautifiedValue = JSON.stringify(
+                                parsedValue,
+                                null,
+                                2
+                            );
+                        } catch (error) {
+                            beautifiedValue = value;
+                        }
+                        setFieldValue(name, beautifiedValue);
+                    };
 
                     return (
                         <Form className="flex w-1/3 flex-row">
@@ -120,9 +138,9 @@ export function RenderShapes() {
                                                             name={`shapes.${index}.points`}
                                                             placeholder="Add array of points"
                                                             onChange={
-                                                                handleChange
+                                                                handleTextChange
                                                             }
-                                                            className="w-full border border-gray-500 bg-gray-100"
+                                                            className="w-full border border-gray-500 bg-gray-100 p-2"
                                                             component="textarea"
                                                             rows={8}
                                                         />
