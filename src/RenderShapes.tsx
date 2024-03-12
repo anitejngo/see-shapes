@@ -7,7 +7,13 @@ import {
     parseInput,
 } from './helpers/calculations';
 import { FormValues, Shape } from './types/types';
-import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
+import {
+    AiFillEye,
+    AiFillEyeInvisible,
+    AiFillFormatPainter,
+} from 'react-icons/ai';
+import { ImSad } from 'react-icons/im';
+
 import { LuSquareDashedBottom, LuSquare } from 'react-icons/lu';
 
 import { IconCheckBox } from './components/IconCheckBox';
@@ -66,10 +72,8 @@ export function RenderShapes() {
                 {({ values, handleChange, setFieldValue, setValues }) => {
                     setFormValues(values);
 
-                    const handleTextChange = (
-                        event: ChangeEvent<HTMLTextAreaElement>
-                    ) => {
-                        const { name, value } = event.target;
+                    const formatText = (name: string, value: any) => {
+                        console.log(value, 'VA:');
                         let beautifiedValue;
                         try {
                             const parsedValue = parseInput(value);
@@ -138,7 +142,7 @@ export function RenderShapes() {
                                                             name={`shapes.${index}.points`}
                                                             placeholder="Add array of points"
                                                             onChange={
-                                                                handleTextChange
+                                                                handleChange
                                                             }
                                                             className="w-full border border-gray-500 bg-gray-100 p-2"
                                                             component="textarea"
@@ -278,15 +282,36 @@ export function RenderShapes() {
                                                                     />
                                                                 }
                                                             />
+                                                            <AiFillFormatPainter
+                                                                size={26}
+                                                                className={`${
+                                                                    failedToParse
+                                                                        ? 'text-gray-400 '
+                                                                        : 'text-green-700 '
+                                                                } cursor-pointer`}
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    formatText(
+                                                                        `shapes.${index}.points`,
+                                                                        values
+                                                                            .shapes[
+                                                                            index
+                                                                        ].points
+                                                                    );
+                                                                }}
+                                                            />
 
                                                             {failedToParse && (
                                                                 <div
                                                                     className={
-                                                                        'text-red-700 w-1/2'
+                                                                        'text-red-700 w-1/2 items-center flex flex-col'
                                                                     }
                                                                 >
-                                                                    Parsing
-                                                                    error ˙◠˙
+                                                                    <div>
+                                                                        Parsing
+                                                                        error
+                                                                    </div>
+                                                                    <ImSad />
                                                                 </div>
                                                             )}
                                                         </div>
