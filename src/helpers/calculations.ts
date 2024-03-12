@@ -32,7 +32,7 @@ export const parseInput = (inputValue: any): any => {
         } else {
             // Handle invalid input here
             console.error('Invalid input - not an object or array');
-            return [];
+            return undefined;
         }
     } catch (error) {
         return undefined;
