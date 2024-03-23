@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Formik, Form, FieldArray, Field } from 'formik';
 import { drawEverything } from './helpers/draw';
 import {
@@ -73,7 +73,6 @@ export function RenderShapes() {
                     setFormValues(values);
 
                     const formatText = (name: string, value: any) => {
-                        console.log(value, 'VA:');
                         let beautifiedValue;
                         try {
                             const parsedValue = parseInput(value);

@@ -7,7 +7,8 @@ export const drawShape = (
     zoomLevel: number,
     padding: number,
     canvas: HTMLCanvasElement,
-    shape: Shape
+    shape: Shape,
+    index: number
 ): void => {
     if (shape.isHidden) {
         return;
@@ -17,21 +18,6 @@ export const drawShape = (
     if (shapePoints.length < 1) {
         return;
     }
-    if (shapePoints.length < 2) {
-        // Not enough points to draw a shape
-        drawPoint(
-            ctx,
-            shape.points[0],
-            minX,
-            minY,
-            zoomLevel,
-            padding,
-            canvas,
-            shape.color
-        );
-        return;
-    }
-
     ctx.beginPath();
     // Move to the first point
     const firstPoint = shapePoints[0];
@@ -55,6 +41,20 @@ export const drawShape = (
     // Set styles and draw
     ctx.strokeStyle = shape.color;
     ctx.stroke();
+
+    shapePoints.forEach((point: Point, index) => {
+        drawPoint(
+            ctx,
+            point,
+            minX,
+            minY,
+            zoomLevel,
+            padding,
+            canvas,
+            shape.color,
+            index
+        );
+    });
 };
 
 const drawPoint = (
@@ -65,7 +65,8 @@ const drawPoint = (
     zoomLevel: number,
     padding: number,
     canvas: HTMLCanvasElement,
-    color: string
+    color: string,
+    index: number
 ): void => {
     const x = (point.x - minX) * zoomLevel + padding;
     const y = canvas.height - ((point.y - minY) * zoomLevel + padding);
@@ -78,6 +79,11 @@ const drawPoint = (
 
     ctx.fillStyle = color;
     ctx.fill();
+
+    // Draw index number
+    ctx.fillStyle = '#000'; // Change text color to black
+    ctx.fillText(index.toString(), x + 10, y);
+
     ctx.closePath();
     ctx.stroke();
 };

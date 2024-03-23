@@ -47,7 +47,16 @@ export const drawEverything = (
             );
 
             shapes.forEach((shape, index) => {
-                drawShape(ctx, minX, minY, zoomLevel, PADDING, canvas, shape);
+                drawShape(
+                    ctx,
+                    minX,
+                    minY,
+                    zoomLevel,
+                    PADDING,
+                    canvas,
+                    shape,
+                    index
+                );
             });
         }
     } catch {
