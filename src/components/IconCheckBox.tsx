@@ -1,28 +1,21 @@
 import React, { ReactElement } from 'react';
 
 interface IconCheckBoxProps {
-    checked: boolean;
-    onChange: (checked: boolean) => void;
-    checkedIcon: ReactElement;
-    uncheckedIcon: ReactElement;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  checkedIcon: ReactElement;
+  uncheckedIcon: ReactElement;
 }
 
-export function IconCheckBox({
-    checked,
-    onChange,
-    checkedIcon,
-    uncheckedIcon,
-}: IconCheckBoxProps) {
-    return (
-        <div>
-            <button
-                onClick={() => {
-                    console.log('onChange(!checked)');
-                    onChange(!checked);
-                }}
-            >
-                {checked ? checkedIcon : uncheckedIcon}
-            </button>
-        </div>
-    );
+export function IconCheckBox({ checked, onChange, checkedIcon, uncheckedIcon }: IconCheckBoxProps) {
+  return (
+    <div>
+      <button
+        onClick={() => {
+          onChange(!checked);
+        }}>
+        {checked ? checkedIcon : uncheckedIcon}
+      </button>
+    </div>
+  );
 }

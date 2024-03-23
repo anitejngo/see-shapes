@@ -1,12 +1,13 @@
 export type Point = { x: number; y: number };
 
 export type Shape = {
-    color: string;
-    points: Point[];
-    isHidden: boolean;
-    shouldClose: boolean;
+  color: string;
+  points: Point[];
+  isHidden: boolean;
+  shouldClose: boolean;
+  shouldShowCoordinates: boolean;
 };
 
 export interface FormValues {
-    shapes: Shape[];
+  shapes: Shape[];
 }
