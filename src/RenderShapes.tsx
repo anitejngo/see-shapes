@@ -17,7 +17,13 @@ export function RenderShapes() {
   useEffect(() => {
     const parsedShapes: Shape[] = formValues?.shapes
       .map((shape: any) => {
-        const parsedPoints = parseInput(shape.points);
+        let parsedPoints = parseInput(shape.points);
+
+        // transform type Point = [number, number] to Point = [{ x: number, y: number }]
+        if (Array.isArray(parsedPoints) && parsedPoints.length === 2 && typeof parsedPoints[0] === 'number' && typeof parsedPoints[1] === 'number') {
+          parsedPoints = [{ x: parsedPoints[0], y: parsedPoints[1] }];
+        }
+
         if (isValidShape(parsedPoints)) {
           return {
             points: parsedPoints,
@@ -115,14 +121,18 @@ export function RenderShapes() {
                           <div
                             key={index}
                             className="flex border border-gray-500 p-2 space-x-2 items-center ">
-                            <Field
-                              name={`shapes.${index}.points`}
-                              placeholder="Add array of points"
-                              onChange={handleChange}
-                              className="w-full border border-gray-500 bg-gray-100 p-2"
-                              component="textarea"
-                              rows={8}
+                            <div className={'self-start'}>
+                              <Field name={`shapes.${index}.title`} type="text" placeholder="Add data title"
+                                   className="w-full p-2 my-1" />
+                              <Field
+                                name={`shapes.${index}.points`}
+                                placeholder="Add array of points"
+                                onChange={handleChange}
+                                className="w-full border border-gray-500 bg-gray-100 p-2"
+                                component="textarea"
+                                rows={8}
                             />
+                            </div>
 
                             <div className={'space-y-2 items-center flex flex-col'}>
                               <button
