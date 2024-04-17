@@ -6,7 +6,9 @@ import { FormValues, Shape } from './types/types';
 import { AiFillEye, AiFillEyeInvisible, AiFillFormatPainter } from 'react-icons/ai';
 import { ImSad } from 'react-icons/im';
 
-import { LuSquareDashedBottom, LuSquare, LuInfo } from 'react-icons/lu';
+import { LuSquareDashedBottom, LuSquare } from 'react-icons/lu';
+import { MdGpsOff, MdOutlineGpsFixed, MdOutlineNumbers } from 'react-icons/md';
+import { BiShapeSquare } from 'react-icons/bi';
 
 import { IconCheckBox } from './components/IconCheckBox';
 
@@ -16,11 +18,16 @@ export function RenderShapes() {
 
   useEffect(() => {
     const parsedShapes: Shape[] = formValues?.shapes
-      .map((shape: any) => {
+      .map((shape: Shape) => {
         let parsedPoints = parseInput(shape.points);
 
         // transform type Point = [number, number] to Point = [{ x: number, y: number }]
-        if (Array.isArray(parsedPoints) && parsedPoints.length === 2 && typeof parsedPoints[0] === 'number' && typeof parsedPoints[1] === 'number') {
+        if (
+          Array.isArray(parsedPoints) &&
+          parsedPoints.length === 2 &&
+          typeof parsedPoints[0] === 'number' &&
+          typeof parsedPoints[1] === 'number'
+        ) {
           parsedPoints = [{ x: parsedPoints[0], y: parsedPoints[1] }];
         }
 
@@ -28,7 +35,9 @@ export function RenderShapes() {
           return {
             points: parsedPoints,
             isHidden: shape.isHidden,
+            shouldDrawLines: shape.shouldDrawLines,
             shouldClose: shape.shouldClose,
+            shouldShowIndex: shape.shouldShowIndex,
             shouldShowCoordinates: shape.shouldShowCoordinates,
             color: shape.color,
           };
@@ -60,8 +69,10 @@ export function RenderShapes() {
               color: getRandomBasicColor(),
               points: [],
               isHidden: false,
-              shouldClose: true,
-              shouldShowCoordinates: true,
+              shouldDrawLines: false,
+              shouldClose: false,
+              shouldShowIndex: true,
+              shouldShowCoordinates: false,
             },
           ],
         }}
@@ -122,8 +133,12 @@ export function RenderShapes() {
                             key={index}
                             className="flex border border-gray-500 p-2 space-x-2 items-center ">
                             <div className={'self-start'}>
-                              <Field name={`shapes.${index}.title`} type="text" placeholder="Add data title"
-                                   className="w-full p-2 my-1" />
+                              <Field
+                                name={`shapes.${index}.title`}
+                                type="text"
+                                placeholder="Add data title"
+                                className="w-full p-2 my-1"
+                              />
                               <Field
                                 name={`shapes.${index}.points`}
                                 placeholder="Add array of points"
@@ -131,7 +146,7 @@ export function RenderShapes() {
                                 className="w-full border border-gray-500 bg-gray-100 p-2"
                                 component="textarea"
                                 rows={8}
-                            />
+                              />
                             </div>
 
                             <div className={'space-y-2 items-center flex flex-col'}>
@@ -180,32 +195,70 @@ export function RenderShapes() {
                                 uncheckedIcon={<AiFillEye size={26} className={'text-green-700'} />}
                               />
 
-                              <IconCheckBox
-                                checked={shape.shouldShowCoordinates}
-                                onChange={(checked) => {
-                                  const newShapes = [...values.shapes];
-                                  newShapes[index].shouldShowCoordinates = checked;
-                                  setValues({
-                                    shapes: newShapes,
-                                  });
-                                }}
-                                checkedIcon={<LuInfo size={26} className={'text-green-700'} />}
-                                uncheckedIcon={<LuInfo size={26} className={'text-gray-400'} />}
-                              />
-                              <IconCheckBox
-                                checked={shape.shouldClose}
-                                onChange={(checked) => {
-                                  const newShapes = [...values.shapes];
-                                  newShapes[index].shouldClose = checked;
-                                  setValues({
-                                    shapes: newShapes,
-                                  });
-                                }}
-                                checkedIcon={<LuSquare size={26} className={'text-green-700'} />}
-                                uncheckedIcon={
-                                  <LuSquareDashedBottom size={26} className={'text-gray-400'} />
-                                }
-                              />
+                              <div className={'flex'}>
+                                <IconCheckBox
+                                  checked={shape.shouldShowIndex}
+                                  onChange={(checked) => {
+                                    const newShapes = [...values.shapes];
+                                    newShapes[index].shouldShowIndex = checked;
+                                    setValues({
+                                      shapes: newShapes,
+                                    });
+                                  }}
+                                  checkedIcon={
+                                    <MdOutlineNumbers size={26} className={'text-green-700'} />
+                                  }
+                                  uncheckedIcon={
+                                    <MdOutlineNumbers size={26} className={'text-gray-400'} />
+                                  }
+                                />
+                                <IconCheckBox
+                                  checked={shape.shouldShowCoordinates}
+                                  onChange={(checked) => {
+                                    const newShapes = [...values.shapes];
+                                    newShapes[index].shouldShowCoordinates = checked;
+                                    setValues({
+                                      shapes: newShapes,
+                                    });
+                                  }}
+                                  checkedIcon={
+                                    <MdOutlineGpsFixed size={26} className={'text-green-700'} />
+                                  }
+                                  uncheckedIcon={<MdGpsOff size={26} className={'text-gray-400'} />}
+                                />
+                              </div>
+                              <div className={'flex'}>
+                                <IconCheckBox
+                                  checked={shape.shouldDrawLines}
+                                  onChange={(checked) => {
+                                    const newShapes = [...values.shapes];
+                                    newShapes[index].shouldDrawLines = checked;
+                                    setValues({
+                                      shapes: newShapes,
+                                    });
+                                  }}
+                                  checkedIcon={
+                                    <BiShapeSquare size={26} className={'text-green-700'} />
+                                  }
+                                  uncheckedIcon={
+                                    <BiShapeSquare size={26} className={'text-gray-400'} />
+                                  }
+                                />
+                                <IconCheckBox
+                                  checked={shape.shouldClose}
+                                  onChange={(checked) => {
+                                    const newShapes = [...values.shapes];
+                                    newShapes[index].shouldClose = checked;
+                                    setValues({
+                                      shapes: newShapes,
+                                    });
+                                  }}
+                                  checkedIcon={<LuSquare size={26} className={'text-green-700'} />}
+                                  uncheckedIcon={
+                                    <LuSquareDashedBottom size={26} className={'text-gray-400'} />
+                                  }
+                                />
+                              </div>
                               <AiFillFormatPainter
                                 size={26}
                                 className={`${
