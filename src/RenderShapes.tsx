@@ -1,7 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Formik, Form, FieldArray, Field } from 'formik';
 import { drawEverything } from './helpers/draw';
-import { getRandomBasicColor, isValidShape, parseInput } from './helpers/calculations';
+import {
+  getRandomBasicColor,
+  isValidShape,
+  parseCoordinates,
+  parseInput,
+} from './helpers/calculations';
 import { FormValues, Shape } from './types/types';
 import { AiFillEye, AiFillEyeInvisible, AiFillFormatPainter } from 'react-icons/ai';
 import { ImSad } from 'react-icons/im';
@@ -11,6 +16,7 @@ import { MdGpsOff, MdOutlineGpsFixed, MdOutlineNumbers } from 'react-icons/md';
 import { BiShapeSquare } from 'react-icons/bi';
 
 import { IconCheckBox } from './components/IconCheckBox';
+import { DotsDropdown } from './components/DotsDropdown';
 
 export function RenderShapes() {
   const [formValues, setFormValues] = useState<any>();
@@ -93,6 +99,53 @@ export function RenderShapes() {
             setFieldValue(name, beautifiedValue);
           };
 
+          const convertBoundariesToBox = (index: number, value: any) => {
+            let parsedValue;
+            try {
+              parsedValue = parseInput(value);
+            } catch (error) {
+              return;
+            }
+
+            if (Array.isArray(parsedValue) && parsedValue.length > 0) {
+              const minX = Math.min(...parsedValue.map((point: any) => point.x));
+              const minY = Math.min(...parsedValue.map((point: any) => point.y));
+              const maxX = Math.max(...parsedValue.map((point: any) => point.x));
+              const maxY = Math.max(...parsedValue.map((point: any) => point.y));
+
+              const box = [
+                { x: minX, y: minY },
+                { x: maxX, y: minY },
+                { x: maxX, y: maxY },
+                { x: minX, y: maxY },
+              ];
+
+              const newShapes = [...values.shapes];
+              newShapes[index] = {
+                ...values.shapes[index],
+                points: JSON.stringify(box, null, 2) as any,
+                shouldDrawLines: true,
+                shouldClose: true,
+              };
+
+              setValues({
+                shapes: newShapes,
+              });
+            }
+          };
+
+          const convertArraysToCoordinates = (name: string, value: any) => {
+            let parsedValue;
+            try {
+              parsedValue = parseInput(value);
+            } catch (error) {
+              return;
+            }
+
+            const coordinates = parseCoordinates(parsedValue);
+            setFieldValue(name, JSON.stringify(coordinates, null, 2));
+          };
+
           return (
             <Form className="flex w-1/3 flex-row">
               <FieldArray name="shapes">
@@ -150,17 +203,44 @@ export function RenderShapes() {
                             </div>
 
                             <div className={'space-y-2 items-center flex flex-col'}>
-                              <button
-                                className={
-                                  'border px-4 py-2 rounded hover:bg-gray-100 hover:text-gray-600 h-fit w-fit'
-                                }
-                                type="button"
-                                disabled={values.shapes.length === 1}
-                                onClick={() => {
-                                  remove(index);
-                                }}>
-                                Remove
-                              </button>
+                              <div className={'flex self-start'}>
+                                <button
+                                  className={
+                                    'border px-4 py-2 rounded hover:bg-gray-100 hover:text-gray-600 h-fit w-fit'
+                                  }
+                                  type="button"
+                                  disabled={values.shapes.length === 1}
+                                  onClick={() => {
+                                    remove(index);
+                                  }}>
+                                  Remove
+                                </button>
+                                <DotsDropdown
+                                  options={[
+                                    {
+                                      label: 'Format code',
+                                      onClick: () =>
+                                        formatText(
+                                          `shapes.${index}.points`,
+                                          values.shapes[index].points,
+                                        ),
+                                    },
+                                    {
+                                      label: 'Boundaries to box',
+                                      onClick: () =>
+                                        convertBoundariesToBox(index, values.shapes[index].points),
+                                    },
+                                    {
+                                      label: 'Arrays to coordinates',
+                                      onClick: () =>
+                                        convertArraysToCoordinates(
+                                          `shapes.${index}.points`,
+                                          values.shapes[index].points,
+                                        ),
+                                    },
+                                  ]}
+                                />
+                              </div>
                               <button
                                 className="flex"
                                 onClick={() => {

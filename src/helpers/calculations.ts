@@ -96,3 +96,22 @@ export function findMinCoordinates(points: Point[]) {
 
   return { minX, minY };
 }
+
+export function parseCoordinates(input: any[]): Point[] {
+  let result: Point[] = [];
+
+  for (const element of input) {
+    if (Array.isArray(element) && element.length === 2 && typeof element[0] === 'number') {
+      // Found a valid coordinate pair, convert to Point object
+      result.push({ x: element[0], y: element[1] });
+    } else if (Array.isArray(element)) {
+      // If it's a nested array, recursively parse it
+      result = result.concat(parseCoordinates(element));
+    } else if (typeof element === 'object' && 'x' in element && 'y' in element) {
+      // Already in {x, y} format, add to result
+      result.push(element as Point);
+    }
+  }
+
+  return result;
+}
