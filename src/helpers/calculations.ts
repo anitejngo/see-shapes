@@ -1,6 +1,12 @@
 import { Point } from '../types/types';
 
-export function getRandomBasicColor() {
+type Props = {
+  usedColors?: string[];
+};
+
+export function getRandomBasicColor(props?: Props) {
+  const usedColors = props?.usedColors ?? [];
+
   const basicColors = [
     '#F44336', // Red
     '#9C27B0', // Purple
@@ -17,8 +23,12 @@ export function getRandomBasicColor() {
     '#7B1FA2', // Darker Purple
   ];
 
-  const randomIndex = Math.floor(Math.random() * basicColors.length);
-  return basicColors[randomIndex];
+  const colors =
+    usedColors.length > 0 && usedColors.length < basicColors.length
+      ? basicColors.filter((color) => !usedColors.includes(color))
+      : basicColors;
+
+  return colors[Math.floor(Math.random() * colors.length)];
 }
 
 export const parseInput = (inputValue: any): any => {
