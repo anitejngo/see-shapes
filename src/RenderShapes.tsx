@@ -159,7 +159,9 @@ export function RenderShapes() {
                         type="button"
                         onClick={() =>
                           push({
-                            color: getRandomBasicColor(),
+                            color: getRandomBasicColor({
+                              usedColors: values.shapes.map((shape) => shape.color),
+                            }),
                             points: '',
                             isHidden: false,
                           })
@@ -244,7 +246,10 @@ export function RenderShapes() {
                               <button
                                 className="flex"
                                 onClick={() => {
-                                  const newColor = getRandomBasicColor();
+                                  const newColor = getRandomBasicColor({
+                                    usedColors: values.shapes.map((s) => s.color),
+                                  });
+
                                   const newShapes = [...values.shapes];
                                   newShapes[index].color = newColor;
                                   setValues({
@@ -329,6 +334,10 @@ export function RenderShapes() {
                                   onChange={(checked) => {
                                     const newShapes = [...values.shapes];
                                     newShapes[index].shouldClose = checked;
+
+                                    if (checked) {
+                                      newShapes[index].shouldDrawLines = true;
+                                    }
                                     setValues({
                                       shapes: newShapes,
                                     });
