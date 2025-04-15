@@ -275,9 +275,15 @@ export function RenderShapes() {
                                   });
                                 }}
                                 checkedIcon={
-                                  <AiFillEyeInvisible size={26} className={'text-red-700'} />
+                                  <div>
+                                    <AiFillEyeInvisible size={26} className={'text-red-700'} />
+                                  </div>
                                 }
-                                uncheckedIcon={<AiFillEye size={26} className={'text-green-700'} />}
+                                uncheckedIcon={
+                                  <div>
+                                    <AiFillEye size={26} className={'text-green-700'} />
+                                  </div>
+                                }
                               />
 
                               <div className={'flex'}>
