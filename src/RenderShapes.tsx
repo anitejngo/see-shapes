@@ -8,7 +8,6 @@ import {
   parseInput,
 } from './helpers/calculations';
 import { FormValues, Shape } from './types/types';
-import * as AiIcons from 'react-icons/ai';
 import { ImSad } from 'react-icons/im';
 
 import { LuSquareDashedBottom, LuSquare } from 'react-icons/lu';
@@ -17,6 +16,7 @@ import { BiShapeSquare } from 'react-icons/bi';
 
 import { IconCheckBox } from './components/IconCheckBox';
 import { DotsDropdown } from './components/DotsDropdown';
+import { AiFillEye, AiFillEyeInvisible, AiFillFormatPainter } from 'react-icons/ai';
 
 export function RenderShapes() {
   const [formValues, setFormValues] = useState<any>();
@@ -275,14 +275,9 @@ export function RenderShapes() {
                                   });
                                 }}
                                 checkedIcon={
-                                  <AiIcons.AiFillEyeInvisible
-                                    size={26}
-                                    className={'text-red-700'}
-                                  />
+                                  <AiFillEyeInvisible size={26} className={'text-red-700'} />
                                 }
-                                uncheckedIcon={
-                                  <AiIcons.AiFillEye size={26} className={'text-green-700'} />
-                                }
+                                uncheckedIcon={<AiFillEye size={26} className={'text-green-700'} />}
                               />
 
                               <div className={'flex'}>
@@ -353,7 +348,7 @@ export function RenderShapes() {
                                   }
                                 />
                               </div>
-                              <AiIcons.AiFillFormatPainter
+                              <AiFillFormatPainter
                                 size={26}
                                 className={`${
                                   failedToParse ? 'text-gray-400 ' : 'text-green-700 '
