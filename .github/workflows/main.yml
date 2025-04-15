@@ -21,8 +21,8 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Generate version from commit count
-        run: echo "REACT_APP_VERSION=$(git rev-list --count HEAD)" >> $GITHUB_ENV
+      - name: Get commit hash
+        run: echo "REACT_APP_VERSION=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
       - name: Build
         run: npm run build

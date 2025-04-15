@@ -380,7 +380,7 @@ export function RenderShapes() {
 
       <div id="canvasDiv" className={'flex flex-col w-2/3'} style={{ height: 'calc(99vh)' }}>
         <canvas id="canvas" className="border border-black" />
-        <span className={'text-xs'}>Commit version: {process.env.REACT_APP_VERSION}</span>
+        <span className={'text-xs'}>{process.env.REACT_APP_VERSION}</span>
       </div>
     </div>
   );
