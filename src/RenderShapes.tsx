@@ -378,8 +378,9 @@ export function RenderShapes() {
         }}
       </Formik>
 
-      <div id="canvasDiv" className={'flex w-2/3'} style={{ height: 'calc(100vh)' }}>
-        <canvas id="canvas" className="border border-black mb-2" />
+      <div id="canvasDiv" className={'flex flex-col w-2/3'} style={{ height: 'calc(99vh)' }}>
+        <canvas id="canvas" className="border border-black" />
+        <span className={'text-xs'}>Commit version: {process.env.REACT_APP_VERSION}</span>
       </div>
     </div>
   );
