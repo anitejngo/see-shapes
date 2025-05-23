@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Formik, Form, FieldArray, Field } from 'formik';
 import { drawEverything } from './helpers/draw';
 import {
@@ -21,6 +21,24 @@ import { AiFillEye, AiFillEyeInvisible, AiFillFormatPainter } from 'react-icons/
 export function RenderShapes() {
   const [formValues, setFormValues] = useState<any>();
   const [shapes, setShapes] = useState<Shape[]>([]);
+  const [newShapeIndex, setNewShapeIndex] = useState<number | null>(null);
+  const inputRefs = useRef<{[key: number]: HTMLTextAreaElement | null}>({});
+  const initialRender = useRef(true);
+  
+  // Focus the first textarea on initial render or when a new shape is added
+  useEffect(() => {
+    if (initialRender.current) {
+      // On initial render, focus the first textarea
+      if (inputRefs.current[0]) {
+        inputRefs.current[0]?.focus();
+      }
+      initialRender.current = false;
+    } else if (newShapeIndex !== null && inputRefs.current[newShapeIndex]) {
+      // Focus newly added textarea
+      inputRefs.current[newShapeIndex]?.focus();
+      setNewShapeIndex(null);
+    }
+  }, [newShapeIndex, shapes.length]);
 
   useEffect(() => {
     const parsedShapes: Shape[] = formValues?.shapes
@@ -73,7 +91,7 @@ export function RenderShapes() {
           shapes: [
             {
               color: getRandomBasicColor(),
-              points: [],
+              points: '',
               isHidden: false,
               shouldDrawLines: false,
               shouldClose: false,
@@ -147,41 +165,44 @@ export function RenderShapes() {
           };
 
           return (
-            <Form className="flex w-1/3 flex-row">
-              <FieldArray name="shapes">
-                {({ push, remove }) => (
-                  <div
-                    className="flex flex-1 flex-col overflow-y-scroll space-y-2 p-2"
-                    style={{ height: 'calc(100vh)' }}>
-                    <div className={'flex items-center space-x-2'}>
+            <Form className="flex w-1/3 flex-col h-screen">
+              <div className="p-2 border-b bg-white sticky top-0 z-10">
+                <div className="flex items-center space-x-2">
+                  <FieldArray name="shapes">
+                    {({ push }) => (
                       <button
                         className="border border-gray-500 text-gray-500 px-4 py-2 rounded hover:bg-gray-100 hover:text-gray-600 w-fit h-fit"
                         type="button"
-                        onClick={() =>
+                        onClick={() => {
+                          const newIndex = values.shapes.length;
                           push({
                             color: getRandomBasicColor({
                               usedColors: values.shapes.map((shape) => shape.color),
                             }),
                             points: '',
                             isHidden: false,
-                          })
-                        }>
+                          });
+                          setNewShapeIndex(newIndex);
+                        }}>
                         Add more
                       </button>
-                      <div
-                        className={'text-gray-500'}>{`example: [{ x: 1,y: 1,},{ x: 1,y: 2,}]`}</div>
-                    </div>
-                    {values.shapes.map(
-                      (
+                    )}
+                  </FieldArray>
+                  <div className={'text-gray-500 text-sm'}>{`example: [{ x: 1,y: 1,},{ x: 1,y: 2,}]`}</div>
+                </div>
+              </div>
+              <div className="flex-1 overflow-y-auto p-2 space-y-2" style={{ height: 'calc(100vh - 60px)' }}>
+                    <FieldArray name="shapes">
+                      {({ remove }) => (
+                        <>
+                          {values.shapes.map((
                         shape: Shape,
                         index: number, // Use Shape type here
                       ) => {
                         const points = values.shapes[index].points;
                         const parsedValue = parseInput(points);
 
-                        const failedToParse =
-                          // @ts-ignore
-                          points !== '' && parsedValue === undefined;
+                        const failedToParse = points !== '' && !isValidShape(parsedValue);
 
                         return (
                           <div
@@ -201,6 +222,9 @@ export function RenderShapes() {
                                 className="w-full border border-gray-500 bg-gray-100 p-2"
                                 component="textarea"
                                 rows={8}
+                                innerRef={(el: HTMLTextAreaElement) => {
+                                  inputRefs.current[index] = el;
+                                }}
                               />
                             </div>
 
@@ -370,9 +394,10 @@ export function RenderShapes() {
                         );
                       },
                     )}
+                        </>
+                      )}
+                    </FieldArray>
                   </div>
-                )}
-              </FieldArray>
             </Form>
           );
         }}
