@@ -32,24 +32,51 @@ export function getRandomBasicColor(props?: Props) {
 }
 
 export const parseInput = (inputValue: any): any => {
-  try {
-    // Using Function() to parse the input as JavaScript code
-    const parsed = Function(`"use strict"; return (${inputValue})`)();
+  // Return empty array for empty strings
+  if (inputValue === '') {
+    return [];
+  }
 
-    // Check if it's an object or an array before setting the state
-    if (typeof parsed === 'object' && parsed !== null) {
-      return parsed;
-    } else {
-      // Handle invalid input here
-      console.error('Invalid input - not an object or array');
-      return undefined;
+  try {
+    // If it's already an array or object, return it directly
+    if (typeof inputValue === 'object' && inputValue !== null) {
+      return inputValue;
     }
+
+    // If it's a string, try to parse it as JSON first
+    if (typeof inputValue === 'string') {
+      try {
+        return JSON.parse(inputValue);
+      } catch (e) {
+        // If JSON parsing fails, try evaluating as JavaScript
+        try {
+          const parsed = Function(`"use strict"; return (${inputValue})`)();
+          if (Array.isArray(parsed) || (typeof parsed === 'object' && parsed !== null)) {
+            return parsed;
+          }
+        } catch (innerError) {
+          return undefined;
+        }
+      }
+    }
+
+    return undefined;
   } catch (error) {
     return undefined;
   }
 };
 
 export const isValidShape = (points: any): points is Point[] => {
+  // If points is a string, try to parse it first
+  if (typeof points === 'string') {
+    try {
+      const parsed = JSON.parse(points);
+      points = Array.isArray(parsed) ? parsed : [parsed];
+    } catch (e) {
+      return false;
+    }
+  }
+
   // Check if points is an array
   if (!Array.isArray(points)) {
     return false;

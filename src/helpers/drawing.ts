@@ -13,7 +13,20 @@ export const drawShape = (
     return;
   }
 
-  const shapePoints = shape.points;
+  // Parse points if they're in string format
+  let shapePoints: Point[] = [];
+  if (typeof shape.points === 'string') {
+    try {
+      const parsed = JSON.parse(shape.points);
+      shapePoints = Array.isArray(parsed) ? parsed : [parsed];
+    } catch (e) {
+      console.error('Failed to parse points:', e);
+      return;
+    }
+  } else {
+    shapePoints = shape.points;
+  }
+
   if (shapePoints.length < 1) {
     return;
   }

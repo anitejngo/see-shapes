@@ -2,7 +2,7 @@ export type Point = { x: number; y: number };
 
 export type Shape = {
   color: string;
-  points: Point[];
+  points: string | Point[];
   isHidden: boolean;
   shouldDrawLines: boolean;
   shouldClose: boolean;

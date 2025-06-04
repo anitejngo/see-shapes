@@ -14,7 +14,25 @@ export const drawEverything = (canvasDiv: HTMLElement, canvas: any, shapes: Shap
       ctx.fillStyle = '#e6f0ff';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      const allPoints: Point[] = [...shapes.flatMap((shapeArray) => shapeArray.points)];
+      const allPoints: Point[] = shapes.flatMap((shape) => {
+        const points = shape.points;
+        if (typeof points === 'string') {
+          try {
+            const parsed = JSON.parse(points);
+            return Array.isArray(parsed) ? parsed : [parsed];
+          } catch (e) {
+            return [];
+          }
+        }
+        return points;
+      }).filter((point): point is Point => 
+        point !== null && 
+        typeof point === 'object' && 
+        'x' in point && 
+        'y' in point && 
+        typeof point.x === 'number' && 
+        typeof point.y === 'number'
+      );
 
       const { minX, minY } = findMinCoordinates(allPoints);
 
